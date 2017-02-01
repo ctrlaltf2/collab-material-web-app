@@ -1,146 +1,111 @@
-<!-- inject:win-logo-ascii --><!-- endinject --><!DOCTYPE html>
+<!-- inject:win-logo-ascii -->
+<!-- endinject -->
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Control A Collaborative Windows 7 Virtual Machine!</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-		<!-- inject:css -->
-		<link rel="stylesheet" type="text/css" href="../res/main.css"/>
-		<!-- endinject -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js" integrity="sha384-o6l2EXLcx4A+q7ls2O2OP2Lb2W7iBgOsYvuuRI6G+Efbjbk6J4xbirJpHZZoHbfs" crossorigin="anonymous"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-		<!-- inject:js -->
-		<script type="text/javascript">History = { options: { html4Mode: true } }</script>
-		<script type="text/javascript" src="../js/collab-vm/jquery.history.js"></script>
-		<script type="text/javascript" src="guacamole.min.js"></script>
-		<script type="text/javascript" src="../js/collab-vm/common.js"></script>
-		<script type="text/javascript" src="../js/collab-vm/en-us-qwerty.js"></script>
-		<script type="text/javascript" src="../js/collab-vm/collab-vm.js"></script>
-		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.9.1/holder.min.js"></script>-->
-		<!-- endinject -->
-    </head>
-    <body>
-		<!-- inject:navbar -->
-		<div class="navbar navbar-default navbar-static-top">
-			<div class="container-fluid">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<div class="navbar-brand" style="cursor: default">CollabVM</div>
-				</div>
-				<div class="collapse navbar-collapse">
-					<ul class="nav navbar-nav">
-						<li><a href="/collab-vm/" id="home-btn">Home</a></li>
-						<li><a href="/collab-vm/faq" target="_blank">FAQ</a></li>
-						<li><a href="/collab-vm/news" target="_blank">News</a></li>
-						<li><a href="/collab-vm/rules" target="_blank">Rules</a></li>
-						<li><a href="/collab-vm/classic" target="_blank">Classic</a></li>
-						<li><a href="https://reddit.com/r/collabvm" target="_blank">Subreddit</a></li>
-					</ul>
-				</div>
-			</div>
-		</div>
-		<!-- endinject -->
-		<div class="modal fade" id="username-modal" tabindex="-1" role="dialog" aria-labelledby="username-modal-label">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-				  <div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="username-modal-label">Change Username</h4>
-				  </div>
-				  <div class="modal-body">
-					Enter a new username.
-					<br>
-					<div class="input-group">
-					  <span class="input-group-addon" id="username-addon">Username</span>
-					  <input type="text" class="form-control" aria-describedby="username-addon" id="username-box">
-					</div>
-				  </div>
-				  <div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-					<button type="button" class="btn btn-primary" id="username-ok-btn">OK</button>
-				  </div>
-				</div>
-			</div>
-		</div>
-		<div class="container-fluid">
-			<div id="loading" style="text-align:center;width: 100%;height:100%;position:fixed;display: none;">
-				<div style="width:10%;height:10vw;position:absolute;display: inline-table;margin-left: -10vw;">
-					<div class="sk-fading-circle">
-						<div class="sk-circle1 sk-circle"></div>
-						<div class="sk-circle2 sk-circle"></div>
-						<div class="sk-circle3 sk-circle"></div>
-						<div class="sk-circle4 sk-circle"></div>
-						<div class="sk-circle5 sk-circle"></div>
-						<div class="sk-circle6 sk-circle"></div>
-						<div class="sk-circle7 sk-circle"></div>
-						<div class="sk-circle8 sk-circle"></div>
-						<div class="sk-circle9 sk-circle"></div>
-						<div class="sk-circle10 sk-circle"></div>
-						<div class="sk-circle11 sk-circle"></div>
-						<div class="sk-circle12 sk-circle"></div>
-					</div>
-				</div>
-			</div>
-			<h4 id="warning" style="display: none;">
-				<div id="warn-text" style="display: inline;"><h2>Warning</h2>As anyone can do anything on these PCs, this site may contain NSFW content.<br>
-				<div class="checkbox">
-					<label><input type="checkbox" id="no-warn-chkbox">Don't warn me again</label><br>
-				</div>
-				<button class="btn btn-default" id="nsfw-cont-btn">Continue</button></div>
-			</h4>
-			<div id="vm-list" style="display: none;">
-				<!--<div class="row">
-					<div class="col-sm-6 col-md-4">
-						<a class="thumbnail" href="#">
-							<img data-src="holder.js/300x200" alt="...">
-							<div class="caption">
-								<h4>Thumbnail label</h4>
-							</div>
-						</a>
-					</div>
 
-					<div class="col-sm-6 col-md-4">
-						<a class="thumbnail" href="#">
-							<img data-src="holder.js/300x200" alt="...">
-							<div class="caption">
-								<h4>Thumbnail label</h4>
-							</div>
-						</a>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Control A Collaborative Windows 7 Virtual Machine!</title>
+	<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">-->
+	<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<!-- inject:css -->
+	<link rel="stylesheet" type="text/css" href="../res/main.css" />
+	<link rel="stylesheet" type="text/css" href="../res/materialize.css" />
+	<!-- endinject -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js" integrity="sha384-o6l2EXLcx4A+q7ls2O2OP2Lb2W7iBgOsYvuuRI6G+Efbjbk6J4xbirJpHZZoHbfs" crossorigin="anonymous"></script>
+	<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>-->
+	<!-- inject:js -->
+	<script type="text/javascript">
+		History = {
+			options: {
+				html4Mode: true
+			}
+		}
+	</script>
+	<script type="text/javascript" src="../js/collab-vm/jquery.history.js"></script>
+	<script type="text/javascript" src="guacamole.min.js"></script>
+	<script type="text/javascript" src="../js/collab-vm/common.js"></script>
+	<script type="text/javascript" src="../js/collab-vm/en-us-qwerty.js"></script>
+	<script type="text/javascript" src="../js/collab-vm/collab-vm.js"></script>
+	<script type="text/javascript" src="../js/collab-vm/materialize.js"></script>
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.9.1/holder.min.js"></script>-->
+	<!-- endinject -->
+</head>
+
+<body>
+
+	<!-- inject:navbar -->
+	<!-- endinject -->
+	<div class="progress" style="margin-top: 0px;" id="loading">
+		<div class="indeterminate"></div>
+	</div>
+	<div class="container">
+
+		<div class="fixed-action-btn">
+			<a class="btn-floating btn-large orange">
+				<i class="material-icons" id="fab">apps</i>
+			</a>
+			<ul>
+				<li><a class="btn-floating orange tooltipped waves-effect waves-light" id="chat-sound-btn" data-position="left" data-delay="75" data-tooltip="Chat Sound"><i class="material-icons" id="vol">volume_up</i></a></li>
+				<li><a class="btn-floating orange tooltipped waves-effect waves-light" id="vote-btn" data-position="left" data-delay="75" data-tooltip="Reset VM"><i class="material-icons">report_problem</i></a></li>
+				<li><a class="btn-floating orange tooltipped waves-effect waves-light" data-position="left" data-delay="75" data-tooltip="Upload File"><i class="material-icons">publish</i></a></li>
+				<li><a class="btn-floating orange tooltipped waves-effect waves-light" id="osk-btn" data-position="left" data-delay="75"data-tooltip="Show/Hide Keyboard"><i class="material-icons">keyboard</i></a></li>
+				<li><a class="btn-floating orange tooltipped waves-effect waves-light" id="username-btn" data-position="left" data-delay="75" data-tooltip="Change Username" href="#name-modal"><i class="material-icons">face</i></a></li>
+			</ul>
+		</div>
+
+		<div class="fixed-action-btn vote-btns" id="vote-no" style="display:none;">
+			<a class="btn-floating left btn-large red">
+				<i class ="vote material-icons">thumb_down</i>
+			</a>
+		</div>
+
+		<div class="fixed-action-btn vote-btns" id="vote-yes" style="display:none;">
+			<a class="btn-floating left btn-large green">
+				<i class="vote material-icons">thumb_up</i>
+			</a>
+		</div>
+		<div id="name-modal-wrapper" class="section">
+			<div id="name-modal" class="modal" style="z-index: 1003; display: none; opacity: 1; transform: scaleX(1); top: 10%;">
+				<div class="modal-content">
+					<h4>Change Username</h4>
+					<div class="row">
+						<div class="input-field s12">
+							<input id="username" type="text" class="validate">
+							<label for="username">Username</label>
+						</div>
 					</div>
-					
-					<div class="col-sm-6 col-md-4">
-						<a class="thumbnail" href="#">
-							<img data-src="holder.js/300x200" alt="...">
-							<div class="caption">
-								<h4>Thumbnail label</h4>
-							</div>
-						</a>
-					</div>
-					
-				</div>-->
-				
+				</div>
+				<div class="modal-footer">
+					<a href="#!" id="name-submit" class="modal-action modal-close waves-effect waves-green btn-flat ">Submit</a>
+				</div>
 			</div>
-			<div id="vm-view" style="display: none;">
-				<div class="page-header text-center" style="margin-top: -20px;">
-					<h2><small>Click the screen to request a turn and control the computer!</small></h2>
+		</div>
+		<h4 id="warning" style="display: none;">
+			<div id="warn-text" style="display: inline;">
+				<h2>Warning</h2>As anyone can do anything on these PCs, this site may contain NSFW content.<br>
+				<div class="checkbox">
+					<input type="checkbox" class="filled-in" id="no-warn-chkbox" />
+					<label for="no-warn-chkbox">Don't warn me again</label><br>
+				</div>
+				<button class="btn waves-effect waves-light" id="nsfw-cont-btn">Continue</button></div>
+		</h4>
+		<div id="vm-list" class="row" style="display: none;">
+		</div>
+		<div class="row">
+			<div id="vm-view" class="col s12" style="display: none;">
+				<div class="valign-wrapper">
+					<h5 class="orange-text lighten-3-text valign center" style="width:100%;">Click the screen to request a turn and control the computer!</h5>
 				</div>
 				<div id="display-outer">
-					<div id="display"></div>
-					<div style="display:none;" class="alert alert-info alert-dismissible" role="alert" id="vote-alert">
-							Do you want to reset the VM?
-							<button type="button" class="btn btn-success" id="vote-yes">Yes</button>
-							<button type="button" class="btn btn-danger" id="vote-no">No</button>
-							<button type="button" class="close" aria-label="Close" id="vote-dismiss"><span aria-hidden="true">&times;</span></button>
+					<div id="display" class="z-depth-5"></div>
 					</div>
 					<div style="display:none;" id="vote-stats">
 						<h3><small>Votes for VM Reset (<span id="vote-time"></span>)</small></h3>
-						<h4><span class="label label-success">Yes: <span id="vote-label-yes"></span></span> <span class="label label-danger">No: <span id="vote-label-no"></span></span></h4>
+						<h4><span class="label label-success">Yes: <span id="vote-label-yes"></span></span> <span class="label label-danger">No: <span id="vote-label-no"></span></span>
+						</h4>
 					</div>
 					<!--<div class="progress">
 						<div class="progress-bar progress-bar-success" style="width: 60%">
@@ -151,9 +116,6 @@
 						</div>
 					</div>-->
 					<div>
-						<button class="btn btn-default" type="button" id="osk-btn">Keyboard</button>
-						<button class="btn btn-default" type="button"  data-toggle="modal" data-target="#username-modal" id="username-btn" disabled>Change Username</button>
-						<button style="display: none;" class="btn btn-default" type="button" id="vote-btn">Vote for Reset</button>
 						<button class="btn btn-default" type="button" id="upload-options-btn">Upload File</button>
 						<div id="file-upload" class="form-inline" style="display: none;">
 							<input class="form" id="upload-input" type="file">
@@ -172,36 +134,365 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-md-4">
+					<div class="col s4">
 						<div class="panel panel-default">
 							<ul class="list-group">
-							<li class="list-group-item disabled" style="cursor: default;">Users Online: <span id="users-online"></span></li>
-							<div id="online-users" style="overflow-y: auto;max-height: 204px;">
-							</div>
-							</ul>
-						</div>
-					</div>
-					<div class="col-md-8">
-						<div style="position: relative;min-height: 246px; margin-bottom: 10px;">
-							<ul id="chat-panel" class="list-group-item message-pane-wrapper">
-								<div id="chat-box" class="message-pane">
+								<li class="list-group-item disabled" style="cursor: default;">Users Online: <span id="users-online"></span></li>
+								<div id="online-users" style="overflow-y: auto;max-height: 204px;">
 								</div>
 							</ul>
 						</div>
-						<div class="input-group">
+					</div>
+					<div class="col s8">
+						<div style="position: relative;min-height: 246px; margin-bottom: 10px;">
+							<ul id="chat-panel" class="list-group-item message-pane-wrapper">
+								<div id="chat-box" class="collection">
+								</div>
+							</ul>
+						</div>
+						<button id="chat-send-btn" class="btn btn-default" type="button" style="display:none;" disabled><!--CosmicCoding(TM)-->Send</button>
+
+						<!--<div class="input-group">
 							<span id="chat-user" class="input-group-addon" style="display: none;"></span>
 							<input id="chat-input" type="text" class="form-control" aria-describedby="user-label" disabled>
 							<span class="input-group-btn">
-								<button id="chat-send-btn" class="btn btn-default" type="button" disabled>Send</button>
-								<button type="button" class="btn btn-default" id="chat-sound-btn" title="Toggle chat sound. Not VM sound. The VM does not have sound.">
-									<span class="glyphicon glyphicon-volume-up" aria-hidden="true"></span>
 								</button>
 							</span>
+						</div>-->
+
+						<div class="row">
+							<div class="col s12">
+								<p id="chat-user" style="display:none;"></p>
+								<div class="input-field inline">
+									<input id="chat-input" type="text" disabled>
+								</div>
+							</div>
 						</div>
+
 					</div>
 				</div>
 				<br>
 			</div>
 		</div>
-    </body>
+		<script>
+			var listofnodes = []
+			setTimeout(function() {
+				multicollab('198.204.243.50:6004')
+				multicollab('198.204.243.50:6005')
+				multicollab('198.204.243.50:6006')
+				multicollab('62.4.31.97:6004')
+				multicollab('62.4.31.97:6005')
+				multicollab('j-q.us:6004')
+				multicollab('j-q.us:6006')
+			}, 250)
+
+			function multicollab(ip) {
+				var tunnel2 = new Guacamole.WebSocketTunnel('ws://' + ip + '/')
+				tunnel2.onstatechange = function(code) {
+					if (code == 2) {
+						setTimeout(function() {
+							guac2.connect()
+						}, 1000)
+					} else if (code == 1) {
+						tunnel2.sendMessage('connect')
+						tunnel2.sendMessage('list')
+					}
+				}
+				var guac2 = new Guacamole.Client(tunnel2)
+				guac2.onlist = function(e) {
+					tunnel2.onstatechange = null
+					guac2.disconnect()
+					for (var i = 0; i < e.length; i += 3) {
+						listofnodes.push({
+							ip: ip,
+							url: e[i],
+							name: e[i + 1],
+							image: e[i + 2]
+						})
+					}
+					updateVMList2()
+				}
+				guac2.connect()
+			}
+
+			function updateVMList2() {
+				listofnodes.sort(function(a, b) {
+					return a.url > b.url ? 1 : -1
+				})
+				var vmlist = document.getElementById('vm-list')
+				vmlist.innerHTML = ''
+				for (var i in listofnodes) {
+					(function() {
+						var thisnode = listofnodes[i]
+						var div = document.createElement('div')
+						div.className = 'col s12 m4 l3'
+						var card = document.createElement('div')
+						card.className = 'card hoverable'
+						card.innerHTML = (thisnode.image ? '<div class="card-image"><img class="grad" src="data:image/png;base64,' + thisnode.image + '"/><span class="card-title">' + thisnode.name + '</span></div>' : '')
+						card.onclick = function(event) {
+							event.preventDefault()
+							tunnel.onstatechange = null
+							guac.disconnect()
+							var display = document.getElementById('display')
+							if (display.firstChild)
+								display.removeChild(display.firstChild)
+							window.tunnel = new Guacamole.WebSocketTunnel('ws://' + thisnode.ip + '/')
+							window.guac = new Guacamole.Client(tunnel)
+							window.vmName = thisnode.url
+							window.serverAddress = thisnode.ip
+							DartzCodingTM()
+						}
+						div.appendChild(card)
+						vmlist.appendChild(div)
+					})()
+				}
+			}
+
+			function DartzCodingTM() {
+				window.waitingTimer = function(e, t, n) {
+					var a, r = "",
+						o = function() {
+							var n = Math.floor(t / 1e3);
+							0 >= n ? (clearInterval(a),
+								e(null)) : (r.length < 3 ? r += "." : r = "",
+								e(n, r))
+						};
+					return o(),
+						a = setInterval(function() {
+							t -= 1e3,
+								o()
+						}, 1e3)
+				}
+				guac.getDisplay().getElement().addEventListener("click", function() {
+					hasTurn || tunnel.sendMessage("turn")
+				})
+				guac.onerror = function(e) {
+					debugLog(e)
+				}
+				tunnel.onstatechange = function(e) {
+					if (e == Guacamole.Tunnel.State.CLOSED) {
+						displayLoading(),
+							displayVMList(!1),
+							$("#username-btn").prop("disabled", !0),
+							activateOSK(!1);
+						var t = guac.getDisplay().getElement();
+						t.parentNode == display && display.removeChild(t),
+							$("#vm-list").empty(),
+							connected = !1,
+							users = [],
+							usersWaiting = 0,
+							usersData = {},
+							n = null,
+							setFocus(!1),
+							hasTurn = !1,
+							null !== turnInterval && (clearInterval(turnInterval),
+								turnInterval = null,
+								$("#status").html("")),
+							null !== voteInterval && (clearInterval(voteInterval),
+								voteInterval = null),
+							display.className = "",
+							displayTable(),
+							$("#chat-send-btn").prop("disabled", !0),
+							$("#chat-input").prop("disabled", !0),
+							$("#chat-user").hide().html(""),
+							setTimeout(function() {
+								tunnel.state = Guacamole.Tunnel.State.CONNECTING,
+									guac.connect()
+							}, 1e4)
+					} else if (e == Guacamole.Tunnel.State.OPEN) {
+						hasVoted = !1,
+							displayLoading();
+						var n = getCookie("username");
+						n ? tunnel.sendMessage("rename", n) : tunnel.sendMessage("rename"),
+							vmName ? tunnel.sendMessage("connect", vmName) : (displayVMList(),
+								tunnel.sendMessage("list")),
+							display.appendChild(guac.getDisplay().getElement()),
+							$("#chat-send-btn").prop("disabled", !1),
+							$("#chat-input").prop("disabled", !1),
+							$("#chat-user").show()
+					}
+				}
+				guac.onlist = function(e) {
+					updateVMList(e),
+						displayLoading(!1)
+				}
+				function EeveeCodingTM() {
+					$("#fab").attr("class", "material-icons");
+					$("#fab").text("apps")
+				}
+				function ReadabilityTM(seconds, estimate = false) {
+					str = '';
+					if(estimate) {
+						str = '~';
+					}
+					$("#fab").attr("class", "num");
+					$("#fab").text(str + seconds);
+				}
+				guac.onturn = function(e) {
+					debugLog("Turn: "),
+						debugLog(e);
+					for (var t = 0; t < users.length; t++)
+						usersData[users[t]][1] = 0;
+					usersWaiting = parseInt(e[1]);
+					for (var n = usersWaiting + 2, t = 2; n > t; t++)
+						usersData[e[t]][1] = t - 1;
+					n > 2 && e[2] == username ? (hasTurn = !0,
+							display.className = "focused",
+							null !== turnInterval && clearInterval(turnInterval),
+							turnInterval = waitingTimer(function(e) {
+								null !== e ? ReadabilityTM(e) : (turnInterval = null,
+									EeveeCodingTM())
+							}, 1e3 * Math.round(parseInt(e[0]) / 1e3))) : e.length > n ? (hasTurn = !1,
+							display.className = "waiting",
+							null !== turnInterval && clearInterval(turnInterval),
+							turnInterval = waitingTimer(function(e, t) {
+								null !== e ? ReadabilityTM(e, 1) : (turnInterval = null,
+									EeveeCodingTM())
+							}, 1e3 * Math.round(parseInt(e[e.length - 1]) / 1e3))) : (hasTurn && (hasTurn = !1,
+								display.className = ""),
+							null !== turnInterval && (clearInterval(turnInterval),
+								turnInterval = null,
+								$("#status").html(""))),
+						activateOSK(hasTurn),
+						displayTable()
+				}
+				guac.onrename = function(e) {
+					if ("0" === e[0]) {
+						var t = null === username;
+						if (!t)
+							for (var n = 0; n < users.length; n++)
+								if (users[n] == username) {
+									users.splice(n, 1);
+									break
+								}
+						username = e[2],
+							$("#username-btn").prop("disabled", !1),
+							$("#chat-user").html(username), -1 == $.inArray(username, users) && users.push(username),
+							usersData[username] = [0, 0],
+							setCookie("username", username, 365),
+							"1" === e[1] ? Materialize.toast("That username is already taken.", 5000) : "2" === e[1] && Materialize.toast("Usernames can contain only numbers, letters, spaces, dashes, underscores, and dots, and it must be between 3 and 20 characters.", 5000)
+					} else if ("1" === e[0]) {
+						for (var a = e[1], r = 0; r < users.length; r++)
+							if (users[r] == a) {
+								users[r] = e[2];
+								break
+							}
+						usersData[e[2]] = usersData[a],
+							delete usersData[a]
+					}
+					displayTable()
+				}
+				guac.onconnect = function(e) {
+					switch (parseInt(e[0])) {
+						case 0:
+							Materialize.toast("Failed to connect to VM.", 5000);
+							break;
+						case 1:
+							updateActions(e.slice(1)),
+								$("#chat-box").empty(),
+								$(".vote-btns").hide(),
+								$("#vote-stats").hide(),
+								displayVMView(),
+								null === username && tunnel.sendMessage("rename", getCookie("username")),
+								connected = !0,
+								displayLoading(!1);
+							break;
+						case 2:
+							connected = !1,
+								hasTurn = !1,
+								null !== turnInterval && clearInterval(turnInterval),
+								null !== voteInterval && clearInterval(voteInterval),
+								null !== uploadInterval && clearInterval(uploadInterval),
+								History.pushState(null, null, rootDir)
+					}
+				}
+				guac.onadduser = function(e) {
+					debugLog("Add user: "),
+						debugLog(e);
+					for (var t = 2 * parseInt(e[0]) + 1, n = 1; t > n; n += 2)
+						e[n] !== username && (users.push(e[n]),
+							usersData[e[n]] = [parseInt(e[n + 1]), 0]);
+					displayTable()
+				}
+				guac.onremuser = function(e) {
+					debugLog("Remove user: "),
+						debugLog(e);
+					for (var t = parseInt(e[0]) + 1, n = 1; t > n; n++) {
+						for (var a = e[n], r = 0; r < users.length; r++)
+							if (users[r] == a) {
+								users.splice(r, 1);
+								break
+							}
+						delete usersData[a]
+					}
+					displayTable()
+				}
+				guac.onchat = function(e) {
+					for (var t = 0; t < e.length; t += 2)
+						chatMessage(e[t], e[t + 1])
+				}
+				guac.onvote = function(e) {
+					switch (parseInt(e[0])) {
+						case 0:
+							debugLog("Vote started");
+						case 1:
+							debugLog("Update vote stats"),
+								setVoteStats(e);
+							break;
+						case 2:
+							debugLog("Voting ended"),
+								$(".vote-btns").hide(),
+								$("#vote-stats").hide(),
+								hasVoted = !1;
+							break;
+						case 3:
+							Materialize.toast("Please wait " + e[1] + " seconds before starting another vote.", 5000)
+					}
+				}
+				guac.onfile = function(e) {
+					switch (parseInt(e[0])) {
+						case fileResponse.BEGIN:
+							startFileUpload(e[1]);
+							break;
+						case fileResponse.FINISHED:
+							$("#upload-input").val(null).prop("disabled", !1),
+								displayUploadWaitTime(2 === e.length ? parseInt(e[1]) : 0);
+							break;
+						case fileResponse.WAIT_TIME:
+							displayUploadWaitTime(parseInt(e[1]));
+							break;
+						case fileResponse.FAILED:
+							$("#upload-input").val(null).prop("disabled", !1),
+								displayUploadWaitTime(2 === e.length ? parseInt(e[1]) : 0),
+								Materialize.toast("File upload failed", 5000);
+							break;
+						case fileResponse.TIMED_OUT:
+							$("#upload-input").val(null).prop("disabled", !1),
+								displayUploadWaitTime(2 === e.length ? parseInt(e[1]) : 0),
+								Materialize.toast("File upload timed out", 5000);
+							break;
+						case fileResponse.UPLOAD_IN_PROGRESS:
+							$("#upload-btn, #upload-input").prop("disabled", !0)
+					}
+				}
+				guac.onaction = function(e) {
+					updateActions(e)
+				}
+				document.addEventListener("mousedown", function() {
+					focused && setFocus(!1)
+				})
+				mouse = new("ontouchstart" in document ? Guacamole.Mouse.Touchscreen : Guacamole.Mouse)(guac.getDisplay().getElement())
+				mouse.onmousedown = function(e) {
+					focused || setFocus(!0),
+						hasTurn && guac.sendMouseState(e)
+				}
+				mouse.onmouseup = mouse.onmousemove = function(e) {
+					hasTurn && guac.sendMouseState(e)
+				}
+				keyboard = new Guacamole.Keyboard(document)
+				guac.connect()
+			}
+		</script>
+</body>
+
 </html>

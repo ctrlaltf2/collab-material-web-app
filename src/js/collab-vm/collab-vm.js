@@ -90,7 +90,7 @@ var usersList = {};
 /** @type {string} */
 var username = null;
 /**
- * The name of the VM that the user is currently viewing 
+ * The name of the VM that the user is currently viewing
  * or trying to view.
  * @type {string}
  */
@@ -106,7 +106,7 @@ var vmName;
  * @type {boolean}
  */
 var urlChangeCalled;
- 
+
  /** @const
   * The root directory of the collab-vm project with a
   * forward slash appended to it.
@@ -196,7 +196,7 @@ function addTableRow(table, user, userData) {
 function displayTable() {
 	$("#users-online").html(users.length);
 	var table = $("#online-users").empty().get(0);
-	
+
 	if (usersWaiting > 0) {
 		for (var x = 1; x < usersWaiting+1; x++) {
 			for (var i = 0; i < users.length; i++) {
@@ -224,11 +224,14 @@ function displayTable() {
 function chatMessage(username, message) {
 	var chatPanel = $("#chat-panel").get(0);
 	var atBottom = chatPanel.offsetHeight + chatPanel.scrollTop >= chatPanel.scrollHeight;
-	var chatElement = $('<li><div></div></li>');
-	if (username)
-		chatElement.children().first().html(message).prepend($('<span class="username"></span>').text(username), '<span class="spacer">\u25B8</span>');
-	else
-		chatElement.children().first().addClass("server-message").html(message);
+	var chatElement = $('<li class="collection-item"><div></div></li>');
+	if (username) {
+		chatElement.children().first().html(message).prepend($('<span class="username"></span>').text(username), '<span class="spacer">: </span>');
+  } else {
+		Materialize.toast(message, 5000);
+    playSound();
+    return;
+  }
 	var chatBox = $("#chat-box");
 	var children = chatBox.children();
 	if (children.length >= maxChatMsgHistory)
@@ -273,9 +276,9 @@ function initSound() {
 function setChatSoundOn(on) {
 	chatSoundOn = on;
 	if (chatSoundOn) {
-		$("#chat-sound-btn").children().first().removeClass("glyphicon-volume-off").addClass("glyphicon-volume-up");
+		$('#vol').html("volume_up");
 	} else {
-		$("#chat-sound-btn").children().first().removeClass("glyphicon-volume-up").addClass("glyphicon-volume-off");
+		$('#vol').html("volume_off");
 	}
 }
 
@@ -356,8 +359,6 @@ function activateOSK(enabled) {
  */
 function displayNsfwWarn(show) {
 	if (show === false) {
-		$("#display").removeClass("censor").removeClass("censor-fallback");
-		$("#vm-list img").removeClass("censor").removeClass("censor-fallback");
 		$("#warning").hide();
 		nsfwWarn = false;
 	} else {
@@ -432,7 +433,7 @@ function updateVMList(list) {
 	var vmList = $("#vm-list");
 	if (list.length) {
 		for (var i = 0; i < list.length; i += 3) {
-			var e = $('<div class="col-sm-6 col-md-4"><a class="thumbnail" href="' + rootDir + viewDir + "/" + list[i] + '">' +
+			var e = $('<div class="col s4"><a class="thumbnail" href="' + rootDir + viewDir + "/" + list[i] + '">' +
 				(list[i+2] ? '<img src="data:image/png;base64,' + list[i+2] + '"/>' : "") +
 				'<div class="caption"><h4>' + list[i+1] + '</h4></div></a></div>');
 			// Add click handler to anchor tag for history
@@ -469,8 +470,8 @@ function getVMList() {
  */
 function setVoteStats(parameters) {
 	debugLog(parameters);
-	$("#vote-label-yes").html(parameters[2]);
-	$("#vote-label-no").html(parameters[3]);
+	$("#vote-yes").tooltip({tooltip:parameters[2], position:'top', delay:25});
+	$("#vote-no").tooltip({tooltip:parameters[3], position:'top', delay:25});
 	if (voteInterval)
 		clearInterval(voteInterval);
 	var ms = parseInt(parameters[1]);
@@ -484,12 +485,12 @@ function setVoteStats(parameters) {
 		}
 	};
 	voteStatus();
-	$("#vote-stats").show();
-	
+	$('.vote-btns').show();
+
 	voteInterval = setInterval(voteStatus, 1000);
 
 	if (!hasVoted) {
-		$("#vote-alert").show();
+		$(".vote-btns").show();
 	}
 }
 
@@ -499,13 +500,13 @@ function setVoteStats(parameters) {
 function updateActions(parameters) {
 	// Turns enabled
 	// if (parameters[0] === "1")
-	
+
 	// Voting enabled
 	if (parameters[1] === "1")
 		$("#vote-btn").show();
 	else
 		$("#vote-btn").hide();
-	
+
 	// Uploads enabled
 	if (parameters[2] === "1") {
 		$("#upload-options-btn").show();
@@ -588,7 +589,7 @@ $(window).on("statechange", function() {
 	debugLog("statechange callled");
 	urlChange();
 });
-	
+
 $(function() {
 	// Determine the root path of collab-vm
 	//rootDir = window.location.pathname.match("(/(?:[^/]*/)*)")[1];
@@ -607,28 +608,28 @@ $(function() {
 		// If the property is not supported, set the background color to white
 		warnText.css("background-color", "white");
 	}
-	
+
 	$("#nsfw-cont-btn").click(function() {
 		displayNsfwWarn(false);
 		if ($("#no-warn-chkbox").prop("checked")) {
 			setCookie("no-nsfw-warn", "1", 365);
 		}
 	});
-	
+
 	osk = new Guacamole.OnScreenKeyboard(en_us_qwerty_keyboard);
 	activateOSK(false);
 	$("#kbd-keys").append(osk.getElement());
-	
+
 	osk.onkeydown = function(keysym) {
 		if (hasTurn)
 			guac.sendKeyEvent(1, keysym);
 	};
-	
+
 	osk.onkeyup = function(keysym) {
 		if (hasTurn)
 			guac.sendKeyEvent(0, keysym);
 	};
-	
+
 	$("#osk-btn").click(function() {
 		var kbd = $("#kbd-outer");
 		if (kbd.is(":visible"))
@@ -636,89 +637,72 @@ $(function() {
 		else
 			kbd.show("fast");
 	});
-	
+
 	$(window).resize(function() {
 		if (osk)
 			osk.resize($("#kbd-container").width());
 	});
-	
+
 	$("#vote-btn").click(function() {
 		hasVoted = true;
 		tunnel.sendMessage("vote", "1");
+
 	});
-	
+
 	$("#vote-yes").click(function() {
 		if (!hasVoted) {
 			hasVoted = true;
 			tunnel.sendMessage("vote", "1");
-			$("#vote-alert").hide();
 		}
 	});
-	
+
 	$("#vote-no").click(function() {
 		if (!hasVoted) {
 			hasVoted = true;
 			tunnel.sendMessage("vote", "0");
-			$("#vote-alert").hide();
 		}
 	});
-	
-	$("#vote-dismiss").click(function() {
-		$("#vote-alert").hide();
-	});
-	
+
 	$('#username-modal').on('show.bs.modal', function (event) {
 		$("#username-box").val(username);
 	});
 
-	$("#username-ok-btn").click(function() {
-		var newUsername = $("#username-box").val().trim();
-		if (newUsername) {
-			$('#username-modal').modal("hide");
-			debugLog("New Username: " + newUsername);
-			// TODO: close modal when WebSocket disconnects
-			if (tunnel.state == Guacamole.Tunnel.State.OPEN) {
-				tunnel.sendMessage("rename", newUsername);
-			}
-		}
-	});
-	
-	$("#username-box").keydown(function(e) {
+	$("username").keydown(function(e) {
 		if (e.which === 13) {
 			// Enter key
 			e.preventDefault();
-			$("#username-ok-btn").trigger("click");
+			$("#name-submit").trigger("click");
 		}
 	});
-	
+
 	// TODO: Add drag and drop support for file uploads
 	/*$("#display").on("dragenter", function(e) {
 		$(this).addClass("drag");
 		e.stopPropagation();
 		e.preventDefault();
 	});
-	
+
 	$("#display").on("dragover", function(e) {
 		e.stopPropagation();
 		e.preventDefault();
 	});
-	
+
 	$("#display").on("dragleave", function(e) {
 		$(this).removeClass("drag");
 		e.stopPropagation();
 		e.preventDefault();
 	});*/
-	
+
 	fileApisSupported = !!(window.File && window.FileReader && window.FileList && window.Blob && window.ArrayBuffer && window.Uint8Array);
-	
+
 	$("#upload-options-btn").click(fileApisSupported ? function() {
 		var fileUpload = $("#file-upload");
 		if (fileUpload.is(":visible"))
 			fileUpload.hide("fast");
 		else
 			fileUpload.show("fast");
-	} : function() { alert("File uploads are not fully supported by your browser."); });
-	
+	} : function() { Materialize.toast("File uploads are not fully supported by your browser.", 5000); });
+
 	if (fileApisSupported) {
 		$("#upload-input").change(function(e) {
 			var files = e.target.files;
@@ -726,11 +710,11 @@ $(function() {
 				var file = files[0];
 				if (file) {
 					if (file.size > maxUploadSize) {
-						alert("File is too big. Max file size is " + maxUploadSize + " bytes.");
+						Materialize.toast("File is too big. Max file size is " + maxUploadSize + " bytes.", 5000);
 					} else if (file.name.length > maxUploadNameLen) {
-						alert("Filename is too long. Max filename is " + maxUploadNameLen + ".");
+						Materialize.toast("Filename is too long. Max filename is " + maxUploadNameLen + ".", 5000);
 					} else if (/[^\x20-\x7E]|[<>:"/\\\|\?\*]/.test(file.name)) {
-						alert("Filename contains characters that are not allowed.");
+						Materialize.toast("Filename contains characters that are not allowed.", 5000);
 					} else {
 						//$("#filename-box").val(file.name);
 						if (uploadInterval === null) {
@@ -743,7 +727,7 @@ $(function() {
 			this.value = null;
 			$("#upload-btn").prop("disabled", true);
 		});
-		
+
 		$("#upload-btn").click(function() {
 			var files = $("#upload-input")[0].files;
 			if (files.length !== 1)
@@ -755,7 +739,7 @@ $(function() {
 			$("#upload-wait-time").html("Uploading...");
 		});
 	}
-	
+
 	$("#home-btn").attr("href", rootDir).click(function(e) {
 		// Check that the link was clicked with the left mouse button
 		if (e.which === 1) {
@@ -767,7 +751,7 @@ $(function() {
 			}
 		}
 	});
-	
+
 	$("#chat-input").keypress(function(e) {
 		if (e.which === 13) {
 			// Enter key sends chat message
@@ -781,7 +765,7 @@ $(function() {
 		if (this.value.length > maxChatMsgLen)
 			this.value = this.value.substr(0, maxChatMsgLen);
 	});
-	
+
 	$("#chat-send-btn").click(function() {
 		var chat = $("#chat-input");
 		var msg = chat.val().trim();
@@ -790,18 +774,18 @@ $(function() {
 			chat.val("");
 		}
 	});
-	
+
 	$("#chat-sound-btn").click(function() {
 		setChatSoundOn(!chatSoundOn);
 		setCookie("chat-sound", chatSoundOn ? "1" : "0", 365);
 	});
-	
+
 	initSound();
-	
+
 	setChatSoundOn(getCookie("chat-sound") != "0");
 
 	displayNsfwWarn(!DEBUG_NO_NSFW && getCookie("no-nsfw-warn") != "1");
-	
+
 	if (DEBUG_VM_LIST) {
 		displayVMList();
 		updateVMList(["win-xp", "Windows XP SP3", ""/*, "win-vista", "Windows Vista", "", "win-7", "Windows 7 Professional", ""*/]);
@@ -812,15 +796,15 @@ $(function() {
 		displayVMView();
 		return;
 	}
-	
+
 	if (DEBUG_LOADING) {
 		displayLoading();
 		return;
 	}
-	
+
 	if (DEBUG_NO_CONNECT)
 		return;
-	
+
 	// Get display div from document
 	display = document.getElementById("display");
 
@@ -831,17 +815,17 @@ $(function() {
 		tunnel.receiveTimeout = 0;
 
 	guac = new Guacamole.Client(tunnel);
-	
+
 	guac.getDisplay().getElement().addEventListener("click", function() {
 		if (!hasTurn && !nsfwWarn)
 			tunnel.sendMessage("turn");
 	});
-	
+
 	// Error handler
 	guac.onerror = function(error) {
 		debugLog(error);
 	};
-	
+
 	tunnel.onstatechange = function(state) {
 		if (state == Guacamole.Tunnel.State.CLOSED) {
 			displayLoading();
@@ -881,14 +865,14 @@ $(function() {
 		} else if (state == Guacamole.Tunnel.State.OPEN) {
 			hasVoted = false;
 			displayLoading();
-			
+
 			// Request a username
 			var username = getCookie("username");
 			if (username)
 				tunnel.sendMessage("rename", username);
 			else
 				tunnel.sendMessage("rename");
-			
+
 			if (vmName) {
 				tunnel.sendMessage("connect", vmName);
 			} else {
@@ -897,20 +881,20 @@ $(function() {
 			}
 			// Add display element
 			display.appendChild(guac.getDisplay().getElement());
-			
+
 			$("#chat-send-btn").prop("disabled", false);
 			$("#chat-input").prop("disabled", false);
 			$("#chat-user").show();
 
 		}
 	};
-	
+
 	// VM List handler
 	guac.onlist = function(parameters) {
 		updateVMList(parameters);
 		displayLoading(false);
 	};
-	
+
 	// Turn handler
 	guac.onturn = function(parameters) {
 		debugLog("Turn: ");
@@ -933,10 +917,12 @@ $(function() {
 			// Round the turn time up to the nearest second
 			turnInterval = waitingTimer(function(seconds) {
 					if (seconds !== null) {
-						$("#status").html("Your turn expires " + "in ~" + seconds + " seconds");
+            $("#fab").attr("class", "num");
+						$("#fab").text("~" + seconds);
 					} else {
 						turnInterval = null;
-						$("#status").html("");
+						$("#fab").attr("class", "material-icons");
+            $("#fab").text("apps");
 					}
 				}, Math.round(parseInt(parameters[0])/1000)*1000);
 		} else if (parameters.length > num) {
@@ -947,10 +933,12 @@ $(function() {
 				clearInterval(turnInterval);
 			turnInterval = waitingTimer(function(seconds, dots) {
 					if (seconds !== null) {
-						$("#status").html("Waiting for turn " + "in ~" + seconds + " seconds" + dots);
+            $("#fab").attr("class", "num");
+						$("#fab").text("~" + seconds);
 					} else {
 						turnInterval = null;
-						$("#status").html("");
+            $("#fab").attr("class", "material-icons");
+            $("#fab").text("apps");
 					}
 				}, Math.round(parseInt(parameters[parameters.length-1])/1000)*1000);
 		} else {
@@ -967,7 +955,7 @@ $(function() {
 		activateOSK(hasTurn);
 		displayTable();
 	};
-	
+
 	// Rename Handler
 	guac.onrename = function(parameters) {
 		if (parameters[0] === "0") {
@@ -995,9 +983,9 @@ $(function() {
 			// Check status
 			if (parameters[1] === "1") {
 				// Username taken
-				alert("That username is already taken.");
+				 Materialize.toast('That username is already taken', 5000)
 			} else if (parameters[1] === "2") {
-				alert("Usernames can contain only numbers, letters, spaces, dashes, underscores, and dots, and it must be between 3 and 20 characters.");
+				Materialize.toast('Usernames can contain only numbers, letters, spaces, dashes, underscores, and dots, and it must be between 3 and 20 characters.', 5000);
 			}
 		} else if (parameters[0] === "1") {
 			var oldUsername = parameters[1];
@@ -1013,17 +1001,17 @@ $(function() {
 		}
 		displayTable();
 	};
-	
+
 	guac.onconnect = function(parameters) {
 		switch (parseInt(parameters[0])) {
 			case 0: // Failed to connect
-				alert("Failed to connect to VM.")
+				Materialize.toast("Failed to connect to VM.", 5000)
 				break;
 			case 1: // Connected
 				updateActions(parameters.slice(1));
 				$("#chat-box").empty();
-				$("#vote-alert").hide();
-				$("#vote-stats").hide();
+				$(".vote-btns").hide();
+				$('.vote-btns').hide();
 				displayVMView();
 				// Request the username that was stored in the cookie
 				// or send an empty username for the server to generate
@@ -1045,13 +1033,13 @@ $(function() {
 					clearInterval(voteInterval);
 				if (uploadInterval !== null)
 					clearInterval(uploadInterval);
-				
+
 				// Redirect to VM list
 				History.pushState(null, null, rootDir);
 				break;
 		}
 	};
-	
+
 	guac.onadduser = function(parameters) {
 		debugLog("Add user: ");
 		debugLog(parameters);
@@ -1064,7 +1052,7 @@ $(function() {
 		}
 		displayTable();
 	};
-	
+
 	guac.onremuser = function(parameters) {
 		debugLog("Remove user: ");
 		debugLog(parameters);
@@ -1081,16 +1069,17 @@ $(function() {
 		}
 		displayTable();
 	};
-	
+
 	guac.onchat = function(parameters) {
 		for (var i = 0; i < parameters.length; i += 2)
 			chatMessage(parameters[i], parameters[i+1]);
 	};
-	
+
 	guac.onvote = function(parameters) {
 		switch (parseInt(parameters[0])) {
 			case 0:
 				debugLog("Vote started");
+        $('.vote-btns').show();
 			// Fall-through
 			case 1:
 				// Update vote stats
@@ -1099,17 +1088,16 @@ $(function() {
 			break;
 			case 2:
 				debugLog("Voting ended");
-				$("#vote-alert").hide();
-				$("#vote-stats").hide();
+				$(".vote-btns").hide();
 				hasVoted = false;
 			break;
 			case 3:
-				alert("Please wait " + parameters[1] + " seconds before starting another vote.")
+				Materialize.toast("Please wait " + parameters[1] + " seconds before starting another vote.", 5000)
 				hasVoted = false;
 			break;
 		}
 	}
-	
+
 	guac.onfile = function(parameters) {
 		switch (parseInt(parameters[0])) {
 		case fileResponse.BEGIN:
@@ -1127,19 +1115,19 @@ $(function() {
 		case fileResponse.FAILED:
 			$("#upload-input").val(null).prop("disabled", false);
 			displayUploadWaitTime(parameters.length === 2 ? parseInt(parameters[1]) : 0);
-			alert("File upload failed");
+			Materialize.toast("File upload failed", 5000);
 			break;
 		case fileResponse.TIMED_OUT:
 			$("#upload-input").val(null).prop("disabled", false);
 			displayUploadWaitTime(parameters.length === 2 ? parseInt(parameters[1]) : 0);
-			alert("File upload timed out");
+			Materialize.toast("File upload timed out", 5000);
 			break;
 		case fileResponse.UPLOAD_IN_PROGRESS:
 			$("#upload-btn, #upload-input").prop("disabled", true);
 			break;
 		}
 	}
-	
+
 	guac.onaction = function(parameters) {
 		updateActions(parameters);
 	}
@@ -1148,7 +1136,7 @@ $(function() {
 		if (focused)
 			setFocus(false);
 	});
-	
+
 	// Mouse
 	mouse = new ("ontouchstart" in document ? Guacamole.Mouse.Touchscreen : Guacamole.Mouse)(guac.getDisplay().getElement());
 	mouse.onmousedown = function(mouseState) {
@@ -1172,3 +1160,39 @@ $(function() {
 window.onunload = function() {
 	guac.disconnect();
 }
+
+$(document).ready(function(){
+  $(".button-collapse").sideNav();
+  $("#vote-no").tooltip({position:'top'});
+  $("#vote-yes").tooltip({position:'top'});
+  $('.modal').modal({
+    dismissible: true, // Modal can be dismissed by clicking outside of the modal
+    opacity: .5, // Opacity of modal background
+    inDuration: 300, // Transition in duration
+    outDuration: 200, // Transition out duration
+    startingTop: '4%', // Starting top style attribute
+    endingTop: '10%', // Ending top style attribute
+    ready: function(modal, trigger) { // Callback for Modal open
+      Materialize.toast("Ready", 5000);
+      console.log(modal, trigger);
+    },
+    complete: function() { Materialize.toast('Closed', 5000); } // Callback for Modal close
+  } // TODO: Emit event on close/open
+);
+  //Setup username button
+  $('#name-submit').click(function() {
+    tunnel.sendMessage("rename", "" + $('#username').val());
+    username = $('#name-submit').val();
+    console.log("Username changed to " + username);
+  });
+  $("#name-submit").click(function() {
+    var newUsername = $("#username").val().trim();
+    if (newUsername) {
+      $('.modal').modal('close');
+      debugLog("New Username: " + newUsername);
+      if (tunnel.state == Guacamole.Tunnel.State.OPEN) {
+        tunnel.sendMessage("rename", newUsername);
+      }
+    }
+  });
+})

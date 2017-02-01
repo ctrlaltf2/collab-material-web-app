@@ -27,7 +27,7 @@ gulp.task('html', ['js', 'res'], function() {
 });
 
 gulp.task('js', function() {
-	return gulp.src(['src/js/collab-vm/jquery.history.js', 'src/js/guacamole/**/*.js', 'src/js/collab-vm/common.js', 'src/js/collab-vm/en-us-qwerty.js', 'src/js/collab-vm/collab-vm.js'])
+	return gulp.src(['src/js/collab-vm/jquery.history.js', 'src/js/guacamole/**/*.js', 'src/js/collab-vm/common.js', 'src/js/collab-vm/en-us-qwerty.js', 'src/js/collab-vm/collab-vm.js', 'src/js/collab-vm/materialize.js'])
 		.pipe(concat('all.min.js'))
 		.pipe(uglify())
 		.pipe(gulp.dest('build'));
@@ -44,4 +44,3 @@ gulp.task('guacamole', function() {
 		.pipe(uglify())
 		.pipe(gulp.dest('src/html'));
 });
-

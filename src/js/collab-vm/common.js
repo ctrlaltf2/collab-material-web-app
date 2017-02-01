@@ -1,5 +1,5 @@
 /** @define {boolean} */
-var DEBUG_LOG = false;
+var DEBUG_LOG = true;
 
 function debugLog(msg) {
 	if (DEBUG_LOG)
@@ -7,4 +7,4 @@ function debugLog(msg) {
 }
 
 /** @const */
-var serverAddress = "localhost:8081";
+var serverAddress = "198.204.243.50:6004";
